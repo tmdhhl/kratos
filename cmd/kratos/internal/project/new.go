@@ -20,7 +20,7 @@ type Project struct {
 
 // New new a project from remote repo.
 func (p *Project) New(ctx context.Context, dir string, layout string, branch string) error {
-	to := path.Join(dir, p.Name)
+	to := p.Path
 	if _, err := os.Stat(to); !os.IsNotExist(err) {
 		fmt.Printf("🚫 %s already exists\n", p.Name)
 		override := false
@@ -39,12 +39,12 @@ func (p *Project) New(ctx context.Context, dir string, layout string, branch str
 	}
 	fmt.Printf("🚀 Creating service %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
 	repo := base.NewRepo(layout, branch)
-	if err := repo.CopyTo(ctx, to, p.Path, []string{".git", ".github"}); err != nil {
+	if err := repo.CopyTo(ctx, p.Path, to, []string{".git", ".github"}); err != nil {
 		return err
 	}
 	e := os.Rename(
-		path.Join(to, "cmd", "server"),
-		path.Join(to, "cmd", p.Name),
+		path.Join(p.Path, "cmd", "server"),
+		path.Join(p.Path, "cmd", p.Name),
 	)
 	if e != nil {
 		return e
